@@ -2,6 +2,7 @@
   "name": "ROBOTONIO Creative 2",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
   "postCreateCommand": "pip install --user pygame-ce pygbag",
+  "features": { "ghcr.io/devcontainers/features/github-cli:1": {} },
   "customizations": {
     "vscode": {
       "extensions": ["ms-python.python"],
