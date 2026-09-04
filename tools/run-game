@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# ROBOTONIO — τρέξιμο παιχνιδιού pygame μέσα σε Codespace.
+# Χρήση: από τον φάκελο του repo:  bash tools/run-game
+# Τι κάνει: build με pygbag + σερβίρισμα στο port 8000. Η συνταγή βγήκε από τη
+# δοκιμή της 27/8/2026 — ΜΗΝ την «απλοποιήσεις»:
+#  - το σκέτο `pygbag main.py` ΔΕΝ δουλεύει σε Codespace (ξαναγράφει το CDN σε localhost)
+#  - χωρίς --ume_block 0 κολλάει σε «MEDIA USER ACTION REQUIRED»
+#  - το port 8000 πρέπει να είναι Public, αλλιώς το .tar.gz κόβεται από CORS
+set -euo pipefail
+
+if [ ! -f main.py ]; then
+  echo "Τρέξε με από τον φάκελο που έχει το main.py"; exit 1
+fi
+
+echo "== 1/3 Χτίσιμο (pygbag) =="
+pygbag --ume_block 0 --build main.py
+
+echo "== 2/3 Port visibility =="
+if command -v gh >/dev/null && [ -n "${CODESPACE_NAME:-}" ]; then
+  gh codespace ports visibility 8000:public -c "$CODESPACE_NAME" 2>/dev/null \
+    && echo "Port 8000 → Public ✔" \
+    || echo "⚠ Δεν μπόρεσα να το κάνω αυτόματα: Ports tab → δεξί κλικ στο 8000 → Visibility → Public"
+else
+  echo "⚠ Θυμήσου: Ports tab → δεξί κλικ στο 8000 → Visibility → Public"
+fi
+
+echo "== 3/3 Σερβίρισμα — άνοιξε το port 8000 από το tab Ports. Ctrl+C για τερματισμό. =="
+echo "   💡 Python errors/print: στη σελίδα του παιχνιδιού F12 → Console → γράψε debug() → Enter"
+echo "      (ανοίγει το τερματικό του pygbag — εκεί φαίνονται Tracebacks και print)"
+python -m http.server 8000 --directory build/web
